@@ -1,0 +1,58 @@
+/* Query 1 - query used for first insight*/
+
+SELECT AR.ArtistId, AR.Name, COUNT(G.Name) as songs
+FROM Track T
+join Genre G on G.GenreId=T.GenreId
+join Album AL on T.AlbumId=AL.AlbumId
+join Artist AR on AL.ArtistId=AR.ArtistId
+WHERE G.Name='Rock' GROUP BY AR.Name
+ORDER BY COUNT(G.Name) DESC LIMIT 10;
+
+/* Query 2 - query used for Second insight*/
+
+SELECT  c.CustomerId, c.FirstName ||' '|| c.LastName as CustomerName,sum(i.Total) as TotalSpent
+FROM Customer c join Invoice i 
+on c.CustomerId=i.CustomerId
+GROUP BY (i.CustomerId)
+ORDER BY TotalSpent desc
+limit 10;
+
+/* Query 3 - query used for Third insight*/
+
+  SELECT   AR.NAME AS ARTIST, C.CUSTOMERID, C.FIRSTNAME || ' ' || C.LASTNAME AS Name, 
+  SUM(IL.UNITPRICE * IL.quantity) AS AmountSpent
+  FROM CUSTOMER C
+  JOIN INVOICE I ON C.CUSTOMERID = I.CUSTOMERID
+  JOIN INVOICELINE IL ON I.INVOICEID = IL.INVOICEID
+  JOIN TRACK T ON IL.TRACKID = T.TRACKID
+  JOIN ALBUM AL ON T.ALBUMID = AL.ALBUMID
+  JOIN ARTIST AR ON AL.ARTISTID = AR.ARTISTID
+  WHERE AR.NAME = 'Iron Maiden'
+  GROUP BY 1,2,3
+  ORDER BY 4 DESC
+  LIMIT 10
+  
+  /* Query 4 - query used for Fourth insight*/
+  
+  
+  WITH A1 AS 
+(
+	SELECT c.Country, SUM(i.Total) TotalSpent, c.FirstName, c.LastName, c.CustomerId
+	FROM 
+		Customer c
+		JOIN Invoice i ON c.CustomerId = i.CustomerId
+	GROUP BY c.CustomerId
+)
+
+SELECT A1.*
+FROM A1
+JOIN(
+	SELECT Country, MAX(TotalSpent) AS MaxTotalSpent, FirstName, LastName, CustomerId
+	FROM A1
+	GROUP BY Country
+)A2
+ON A1.Country = A2.Country
+WHERE A1.TotalSpent = A2.MaxTotalSpent
+ORDER BY Country;
+  
+  
